@@ -6,9 +6,11 @@ using namespace std;
 
 int main(int argc, char** argv) {
 	cv::VideoCapture capture;
-	capture.open("D:/Res/Videos/StaticBG_vtest.avi");
+//	capture.open("D:/Res/Videos/StaticBG_vtest.avi");
 //	capture.open("D:/Res/Videos/DynamicBG_2.mp4");
 //	capture.open("D:/Res/Videos/DynamicBG_car_1.avi");
+//    capture.open("D:/Res/Videos/20190330-102629-0000.avi");
+    capture.open("D:/Res/Videos/20190330-100258-0000.avi");
 	if (!capture.isOpened()) {
 		printf("could not load video data...\n");
 		return -1;
@@ -17,14 +19,19 @@ int main(int argc, char** argv) {
 	double height = capture.get(cv::CAP_PROP_FRAME_HEIGHT);
 	cout << "Size: " << width << " * " << height << endl;
 
-	cv::Rect2d object;
 	cv::Rect ROI, boundingRect;
 	//float peak_value;
-	cv::Mat frame, frame_copy;
+    cv::Mat frame;
 	shared_ptr<custom_kcf::TrackerKCF> tracker = custom_kcf::TrackerKCF::create(true, false, true, false, 0.30);
 
-	capture.read(frame);
-	ROI = cv::selectROI(frame);
+    bool selected = false;
+    while (!selected) {
+        capture.read(frame);
+        ROI = cv::selectROI(frame);
+        if (!ROI.empty())
+            selected = true;
+    }
+
 	tracker->init(ROI, frame);
 
 	int frameCount = 0;
@@ -55,7 +62,7 @@ int main(int argc, char** argv) {
 
 		cv::imshow("KCF Objects Tracking", frame);
 
-		char c = cv::waitKey(30);
+        char c = cv::waitKey(60);
 		if (c == 27) {
 			break;
 		}

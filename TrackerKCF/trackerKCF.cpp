@@ -185,12 +185,14 @@ float TrackerKCF::_update(cv::Mat &image, cv::Rect &objRect)
 
 
     float peak_value;
-    cv::Point2f res = detect(_tmpl, getFeatures(image, 0, 1.0f), peak_value);
+    cv::Mat temp_features = getFeatures(image, 0, 1.0f);
+    cv::Point2f res = detect(_tmpl, temp_features, peak_value);
 
     if (scale_step != 1) {
         // Test at a smaller _scale
         float new_peak_value;
-        cv::Point2f new_res = detect(_tmpl, getFeatures(image, 0, 1.0f / scale_step), new_peak_value);
+        temp_features = getFeatures(image, 0, 1.0f / scale_step);
+        cv::Point2f new_res = detect(_tmpl, temp_features, new_peak_value);
 
         if (scale_weight * new_peak_value > peak_value) {
             res = new_res;
@@ -201,7 +203,8 @@ float TrackerKCF::_update(cv::Mat &image, cv::Rect &objRect)
         }
 
         // Test at a bigger _scale
-        new_res = detect(_tmpl, getFeatures(image, 0, scale_step), new_peak_value);
+        temp_features = getFeatures(image, 0, scale_step);
+        new_res = detect(_tmpl, temp_features, new_peak_value);
 
         if (scale_weight * new_peak_value > peak_value) {
             res = new_res;
